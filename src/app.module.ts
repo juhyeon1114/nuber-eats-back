@@ -5,6 +5,7 @@ import { RestaurantsModule } from './restaurants/restaurants.module';
 // import { join } from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { Restaurant } from './restaurants/entities/restaurant.entity';
 
 @Module({
   imports: [
@@ -28,8 +29,8 @@ import { ConfigModule } from '@nestjs/config';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [],
-      synchronize: true, // DB를 자동으로 typeOrmModule의 상태로 마이그레이션
+      entities: [Restaurant], // typeorm으로 관리할 entity를 입력해주면 됨
+      synchronize: process.env.NODE_ENV !== 'prod', // DB를 자동으로 typeOrmModule의 상태로 마이그레이션
       logging: true, // DB에서 일어나는 일을 logging
     }),
     GraphQLModule.forRoot({
