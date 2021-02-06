@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import * as Joi from 'joi'; //js 패키지를 ts에 import 하는 법
 import { GraphQLModule } from '@nestjs/graphql';
 import { RestaurantsModule } from './restaurants/restaurants.module';
 // import { join } from 'path';
@@ -11,6 +12,14 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true, //config에 어디서든 접근할 수 있음
       envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.test',
       ignoreEnvFile: process.env.NODE_ENV === 'prod', // production 환경일 땐, env파일 무시
+      validationSchema: Joi.object({
+        NODE_ENV: Joi.string().valid('dev', 'prod', 'test'),
+        DB_HOST: Joi.string().required(),
+        DB_PORT: Joi.string().required(),
+        DB_USERNAME: Joi.string().required(),
+        DB_PASSWORD: Joi.string().required(),
+        DB_NAME: Joi.string().required(),
+      }), // 환경변수 유효성 검사
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
