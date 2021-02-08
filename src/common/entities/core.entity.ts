@@ -1,3 +1,4 @@
+import { Field } from '@nestjs/graphql';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -8,11 +9,14 @@ import {
 @Entity()
 export class CoreEntity {
   @PrimaryGeneratedColumn()
+  @Field(() => Date)
   id: number;
 
   @CreateDateColumn()
+  @Field(() => Date)
   createdAt: Date;
 
   @UpdateDateColumn()
+  @Field(() => Date)
   updatedAt: Date;
 }
