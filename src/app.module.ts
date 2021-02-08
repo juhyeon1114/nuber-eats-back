@@ -1,11 +1,14 @@
 import { Module } from '@nestjs/common';
 import * as Joi from 'joi'; //js 패키지를 ts에 import 하는 법
 import { GraphQLModule } from '@nestjs/graphql';
-import { RestaurantsModule } from './restaurants/restaurants.module';
+// import { RestaurantsModule } from './restaurants/restaurants.module';
 // import { join } from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { Restaurant } from './restaurants/entities/restaurant.entity';
+// import { Restaurant } from './restaurants/entities/restaurant.entity';
+import { UsersModule } from './users/users.module';
+import { CommonModule } from './common/common.module';
+import { User } from './users/entities/user.entity';
 
 @Module({
   imports: [
@@ -29,7 +32,7 @@ import { Restaurant } from './restaurants/entities/restaurant.entity';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [Restaurant], // typeorm으로 관리할 entity를 입력해주면 됨
+      entities: [User], // typeorm으로 관리할 entity를 입력해주면 됨
       synchronize: process.env.NODE_ENV !== 'prod', // DB를 자동으로 typeOrmModule의 상태로 마이그레이션
       logging: process.env.NODE_ENV !== 'prod', // DB에서 일어나는 일을 logging
     }),
@@ -37,7 +40,8 @@ import { Restaurant } from './restaurants/entities/restaurant.entity';
       // autoSchemaFile: join(process.cwd(), 'src/schema.gql'), // 스키마 파일을 자동으로 생성
       autoSchemaFile: true, // 스키마를 자동으로 생성해서 메모리에 갖고 있음
     }),
-    RestaurantsModule,
+    UsersModule,
+    CommonModule,
   ],
   controllers: [],
   providers: [],
