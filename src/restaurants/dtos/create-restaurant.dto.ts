@@ -4,16 +4,8 @@
  * ArgsTypedms 선언한 객체의 field들을 입력받기 위해서 사용함. 객체의 형을 유지할 필요 없이 field들을 입력받을 수 있다.
  */
 
-import { ArgsType, Field, InputType, OmitType } from '@nestjs/graphql';
-import { IsBoolean, IsString, Length } from 'class-validator';
+import { InputType, OmitType } from '@nestjs/graphql';
 import { Restaurant } from '../entities/restaurant.entity';
-
-@InputType()
-export class CreateRestaurantDto extends OmitType(
-  Restaurant,
-  ['id'],
-  InputType, // CreateRestaurantDto가 InputType으로 다뤄짐. 이 값을 설정하지 않으면, Restaurnat의 타입(ObjectType)으로 설정됨
-) {}
 
 /**
  * old version : CreateRestaurantDto
@@ -37,3 +29,10 @@ export class CreateRestaurantDto extends OmitType(
 //   @IsString()
 //   ownerName: string;
 // }
+
+@InputType()
+export class CreateRestaurantDto extends OmitType(
+  Restaurant,
+  ['id'],
+  InputType, // CreateRestaurantDto가 InputType으로 다뤄짐. 이 값을 설정하지 않으면, Restaurnat의 타입(ObjectType)으로 설정됨
+) {}
