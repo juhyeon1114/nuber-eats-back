@@ -47,6 +47,7 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
     GraphQLModule.forRoot({
       // autoSchemaFile: join(process.cwd(), 'src/schema.gql'), // 스키마 파일을 자동으로 생성
       autoSchemaFile: true, // 스키마를 자동으로 생성해서 메모리에 갖고 있음
+      context: ({ req }) => ({ user: req['user'] }), // context는 모든 resolver에서 접근할 수 있는 함수이다. 인자에는 request가 있고, 이 request도 모든 resolver에서 접근 가능하다.
     }),
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY,
@@ -67,9 +68,9 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
 // middleware를 쓰는 법 2
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    // JwtMiddleware를 /graphql이라는 경로에서 모든 method에 대해서 적용
+    // JwtMiddleware를 /graphql이라는 경로에서 POST 메서드에 적용
     consumer
       .apply(JwtMiddleware)
-      .forRoutes({ path: '/graphql', method: RequestMethod.ALL });
+      .forRoutes({ path: '/graphql', method: RequestMethod.POST });
   }
 }
