@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+// import { jwtMiddleware } from './jwt/jwt.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -11,6 +12,7 @@ async function bootstrap() {
       transform: true, // request를 우리가 원하는 실제 타입으로 변환해줌
     }),
   );
+  // app.use(jwtMiddleware); // middleware를 쓰는 법 1
   await app.listen(3000);
 }
 bootstrap();

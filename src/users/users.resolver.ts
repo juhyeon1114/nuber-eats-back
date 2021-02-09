@@ -11,11 +11,6 @@ import { LoginInput, LoginOutput } from './dtos/login.dto';
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
-  @Query(() => Boolean)
-  hi() {
-    return true;
-  }
-
   @Mutation(() => CreateAccountOutput)
   async createAccount(
     @Args('input') createAccountInput: CreateAccountInput,
@@ -35,4 +30,7 @@ export class UsersResolver {
       return { ok: false, error };
     }
   }
+
+  @Query(() => User)
+  me() {}
 }

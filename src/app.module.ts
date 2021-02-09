@@ -1,4 +1,9 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import * as Joi from 'joi'; //js 패키지를 ts에 import 하는 법
 import { GraphQLModule } from '@nestjs/graphql';
 // import { RestaurantsModule } from './restaurants/restaurants.module';
@@ -10,6 +15,7 @@ import { UsersModule } from './users/users.module';
 import { CommonModule } from './common/common.module';
 import { User } from './users/entities/user.entity';
 import { JwtModule } from './jwt/jwt.module';
+import { JwtMiddleware } from './jwt/jwt.middleware';
 
 @Module({
   imports: [
@@ -56,4 +62,14 @@ import { JwtModule } from './jwt/jwt.module';
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+// export class AppModule {}
+
+// middleware를 쓰는 법 2
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    // JwtMiddleware를 /graphql이라는 경로에서 모든 method에 대해서 적용
+    consumer
+      .apply(JwtMiddleware)
+      .forRoutes({ path: '/graphql', method: RequestMethod.ALL });
+  }
+}
