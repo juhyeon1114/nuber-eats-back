@@ -6,13 +6,9 @@ import {
 } from '@nestjs/common';
 import * as Joi from 'joi'; //js 패키지를 ts에 import 하는 법
 import { GraphQLModule } from '@nestjs/graphql';
-// import { RestaurantsModule } from './restaurants/restaurants.module';
-// import { join } from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-// import { Restaurant } from './restaurants/entities/restaurant.entity';
 import { UsersModule } from './users/users.module';
-import { CommonModule } from './common/common.module';
 import { User } from './users/entities/user.entity';
 import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
@@ -58,7 +54,6 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
      * 이하, Static Module
      */
     UsersModule,
-    CommonModule,
   ],
   controllers: [],
   providers: [],
