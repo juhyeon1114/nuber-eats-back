@@ -9,6 +9,7 @@ import { LoginInput, LoginOutput } from './dtos/login.dto';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { AuthUser } from 'src/auth/auth-user.decorator';
+import { UserProfileInput, UserProfileOutput } from './dtos/user-profile.dto';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -41,5 +42,20 @@ export class UsersResolver {
   @UseGuards(AuthGuard)
   me(@AuthUser() authUser: User) {
     return authUser;
+  }
+
+  @UseGuards(AuthGuard)
+  @Query(() => UserProfileOutput)
+  async userProfile(
+    @Args() UserProfileInput: UserProfileInput,
+  ): Promise<UserProfileOutput> {
+    try {
+      const user = await this.usersService.findById(UserProfileInput.userId);
+      if (!user) throw Error();
+      return { ok: true, user };
+    } catch (error) {
+      console.error(error);
+      return { ok: false, error: 'User not found' };
+    }
   }
 }
