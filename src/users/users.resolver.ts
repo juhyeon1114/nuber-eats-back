@@ -1,5 +1,5 @@
 import { User } from './entities/user.entity';
-import { Resolver, Query, Args, Mutation, Context } from '@nestjs/graphql';
+import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import {
   CreateAccountInput,
@@ -34,8 +34,11 @@ export class UsersResolver {
     }
   }
 
+  // 1. jwtMiddleware를 통해서 jwt를 통해서 user를 decode해줌
+  // 2. AuthGuard에서 user가 없으면 req를 멈춤 (authorization)
+  // 3. @AuthUser를 통해서 인증을 통과한 user를 가져옴
   @Query(() => User)
-  @UseGuards(AuthGuard) // authorization
+  @UseGuards(AuthGuard)
   me(@AuthUser() authUser: User) {
     return authUser;
   }

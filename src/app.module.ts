@@ -16,7 +16,7 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, //config에 어디서든 접근할 수 있음
+      isGlobal: true, // config에 어디서든 접근할 수 있음
       envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.test',
       ignoreEnvFile: process.env.NODE_ENV === 'prod', // production 환경일 땐, env파일 무시
       validationSchema: Joi.object({
@@ -58,10 +58,8 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
   controllers: [],
   providers: [],
 })
-// export class AppModule {}
-
-// middleware를 쓰는 법 2
 export class AppModule implements NestModule {
+  // middleware를 쓰는 법 2
   configure(consumer: MiddlewareConsumer) {
     // JwtMiddleware를 /graphql이라는 경로에서 POST 메서드에 적용
     consumer

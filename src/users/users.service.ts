@@ -4,15 +4,12 @@ import { Repository } from 'typeorm';
 import { CreateAccountInput } from './dtos/create-account.dto';
 import { LoginInput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
-// import * as jwt from 'jsonwebtoken';
-// import { ConfigService } from '@nestjs/config';
 import { JwtService } from 'src/jwt/jwt.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly users: Repository<User>,
-    // private readonly config: ConfigService,
     private readonly jwtService: JwtService, // JwtModule을 global module로 만들었기 때문에 usersModule에 import 하지 않고 사용할 수 있다
   ) {}
 
@@ -47,14 +44,10 @@ export class UsersService {
     // make a JWT and give it to the user
     try {
       const user = await this.users.findOne({ email });
-      if (!user) {
-        return { ok: false, error: 'User not found' };
-      }
+      if (!user) return { ok: false, error: 'User not found' };
 
       const passwordCorrect = await user.checkPassword(password);
-      if (!passwordCorrect) {
-        return { ok: false, error: 'Wrong password' };
-      }
+      if (!passwordCorrect) return { ok: false, error: 'Wrong password' };
 
       // const token = jwt.sign({ id: user.id }, process.env.SECRET_KEY);
       // const token = jwt.sign({ id: user.id }, this.config.get('SECRET_KEY'));
