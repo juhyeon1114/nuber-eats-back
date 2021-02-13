@@ -5,6 +5,7 @@ import { CreateAccountInput } from './dtos/create-account.dto';
 import { LoginInput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
 import { JwtService } from 'src/jwt/jwt.service';
+import { EditProfileInput } from './dtos/edit-profile.dto';
 
 @Injectable()
 export class UsersService {
@@ -62,5 +63,14 @@ export class UsersService {
 
   async findById(id: number): Promise<User> {
     return this.users.findOne({ id });
+  }
+
+  async editProfile(userId: number, { email, password }: EditProfileInput) {
+    // return this.users.update(userId, { ...editProfileInput }); // update하는 쿼리를 날림 -> @BeforeUpdate훅이 동작하지 않음
+
+    const user = await this.users.findOne(userId);
+    email ? (user.email = email) : {};
+    password ? (user.password = password) : {};
+    return this.users.save(user);
   }
 }
