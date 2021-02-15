@@ -11,6 +11,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { AuthUser } from 'src/auth/auth-user.decorator';
 import { UserProfileInput, UserProfileOutput } from './dtos/user-profile.dto';
 import { EditProfileInput, EditProfileOutput } from './dtos/edit-profile.dto';
+import { VerifyEmailInput, VerifyEmailOutput } from './dtos/verify-email.dto';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -20,20 +21,12 @@ export class UsersResolver {
   async createAccount(
     @Args('input') createAccountInput: CreateAccountInput,
   ): Promise<CreateAccountOutput> {
-    try {
-      return this.usersService.createAccount(createAccountInput);
-    } catch (error) {
-      return { ok: false, error };
-    }
+    return this.usersService.createAccount(createAccountInput);
   }
 
   @Mutation(() => LoginOutput)
   async login(@Args('input') loginInput: LoginInput) {
-    try {
-      return this.usersService.login(loginInput);
-    } catch (error) {
-      return { ok: false, error };
-    }
+    return this.usersService.login(loginInput);
   }
 
   // 1. jwtMiddleware를 통해서 jwt를 통해서 user를 decode해줌
@@ -42,22 +35,16 @@ export class UsersResolver {
   @Query(() => User)
   @UseGuards(AuthGuard)
   me(@AuthUser() authUser: User) {
+    console.log(authUser);
     return authUser;
   }
 
   @UseGuards(AuthGuard)
   @Query(() => UserProfileOutput)
   async userProfile(
-    @Args() UserProfileInput: UserProfileInput,
+    @Args() userProfileInput: UserProfileInput,
   ): Promise<UserProfileOutput> {
-    try {
-      const user = await this.usersService.findById(UserProfileInput.userId);
-      if (!user) throw Error();
-      return { ok: true, user };
-    } catch (error) {
-      console.error(error);
-      return { ok: false, error: 'User not found' };
-    }
+    return this.usersService.findById(userProfileInput.userId);
   }
 
   @UseGuards(AuthGuard)
@@ -66,12 +53,13 @@ export class UsersResolver {
     @AuthUser() authUser: User,
     @Args('input') editProfileInput: EditProfileInput,
   ): Promise<EditProfileOutput> {
-    try {
-      await this.usersService.editProfile(authUser.id, editProfileInput);
-      return { ok: true };
-    } catch (error) {
-      console.error(error);
-      return { ok: false, error };
-    }
+    return this.usersService.editProfile(authUser.id, editProfileInput);
+  }
+
+  @Mutation(() => VerifyEmailOutput)
+  async verifyEmail(
+    @Args('input') verifyEmailInput: VerifyEmailInput,
+  ): Promise<VerifyEmailOutput> {
+    return this.usersService.verifyEmail(verifyEmailInput.code);
   }
 }
