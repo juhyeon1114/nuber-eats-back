@@ -46,7 +46,7 @@ export class UsersService {
       this.mailService.sendVerificationEmail(user.email, verification.code);
       return { ok: true };
     } catch (error) {
-      console.error(error);
+      console.log(error);
       return { ok: false, error: 'Could not create account' };
     }
   }
@@ -74,20 +74,17 @@ export class UsersService {
 
       return { ok: true, token };
     } catch (error) {
-      console.error(error);
+      console.log(error);
       return { ok: false, error };
     }
   }
 
   async findById(id: number): Promise<UserProfileOutput> {
     try {
-      const user = await this.users.findOne({ id });
-      if (user) {
-        return { ok: true, user };
-      }
-      return { ok: false, error: 'user not found' };
+      const user = await this.users.findOneOrFail({ id });
+      return { ok: true, user };
     } catch (error) {
-      console.error(error);
+      console.log(error);
       return { ok: false, error };
     }
   }
@@ -114,7 +111,7 @@ export class UsersService {
       await this.users.save(user);
       return { ok: true };
     } catch (error) {
-      console.error(error);
+      console.log(error);
       return { ok: false, error };
     }
   }
@@ -134,7 +131,7 @@ export class UsersService {
       }
       return { ok: false, error: 'Verification not found' };
     } catch (error) {
-      console.error(error);
+      console.log(error);
       return { ok: false, error };
     }
   }
