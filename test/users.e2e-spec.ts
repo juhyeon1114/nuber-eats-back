@@ -96,6 +96,21 @@ describe('UserModule (e2e)', () => {
       });
   };
 
+  const me = (token) => {
+    return request(app.getHttpServer())
+      .post(GRAPHQL_ENDPOINT)
+      .set('x-jwt', token)
+      .send({
+        query: `
+        query {
+          me {
+            email
+          }
+        }
+      `,
+      });
+  };
+
   describe('createAccount', () => {
     it('should create account', () => {
       return createTestAccount(EMAIL, PASSWORD)
@@ -194,7 +209,37 @@ describe('UserModule (e2e)', () => {
     });
   });
 
-  it.todo('me');
-  it.todo('verifyEmail');
-  it.todo('editProfile');
+  describe('me', () => {
+    it('should return my profile', () => {
+      return me(jwtToken)
+        .expect(200)
+        .expect((res) => {
+          const {
+            body: {
+              data: {
+                me: { email },
+              },
+            },
+          } = res;
+          expect(email).toEqual(EMAIL);
+        });
+    });
+
+    it('should find my profile', () => {
+      return me('wrongToken')
+        .expect(200)
+        .expect((res) => {
+          const {
+            body: { errors },
+          } = res;
+          const [error] = errors;
+          expect(error.message).toBe('Forbidden resource');
+          console.log(res.body);
+        });
+    });
+  });
+
+  describe('editProfile', () => {});
+
+  describe('verifyEmail', () => {});
 });
