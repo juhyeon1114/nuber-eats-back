@@ -16,6 +16,7 @@ jest.mock('got', () => {
 const GRAPHQL_ENDPOINT = '/graphql';
 const EMAIL = 'juhyeon@gomiad.com';
 const PASSWORD = 'rlawngus';
+const NEW_EMAIL = 'juhyeon2@gomiad.com';
 
 describe('UserModule (e2e)', () => {
   let app: INestApplication;
@@ -108,6 +109,24 @@ describe('UserModule (e2e)', () => {
           }
         }
       `,
+      });
+  };
+
+  const editProfile = (email) => {
+    return request(app.getHttpServer())
+      .post(GRAPHQL_ENDPOINT)
+      .set('x-jwt', jwtToken)
+      .send({
+        query: `
+            mutation {
+              editProfile(input: {
+                email: "${email}"
+              }) {
+                ok
+                error
+              }
+            }
+          `,
       });
   };
 
@@ -234,12 +253,41 @@ describe('UserModule (e2e)', () => {
           } = res;
           const [error] = errors;
           expect(error.message).toBe('Forbidden resource');
-          console.log(res.body);
         });
     });
   });
 
-  describe('editProfile', () => {});
+  describe('editProfile', () => {
+    it('should change email', () => {
+      return editProfile(NEW_EMAIL)
+        .expect(200)
+        .expect((res) => {
+          const {
+            body: {
+              data: {
+                editProfile: { ok, error },
+              },
+            },
+          } = res;
+          expect(ok).toBe(true);
+          expect(error).toBe(null);
+        })
+        .then(() => {
+          return me(jwtToken)
+            .expect(200)
+            .expect((res) => {
+              const {
+                body: {
+                  data: {
+                    me: { email },
+                  },
+                },
+              } = res;
+              expect(email).toEqual(NEW_EMAIL);
+            });
+        });
+    });
+  });
 
   describe('verifyEmail', () => {});
 });
