@@ -22,7 +22,7 @@ import { MailModule } from './mail/mail.module';
       envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.test',
       ignoreEnvFile: process.env.NODE_ENV === 'prod', // production 환경일 땐, env파일 무시
       validationSchema: Joi.object({
-        NODE_ENV: Joi.string().valid('dev', 'prod', 'test'),
+        NODE_ENV: Joi.string().valid('dev', 'prod', 'test').required(),
         DB_HOST: Joi.string().required(),
         DB_PORT: Joi.string().required(),
         DB_USERNAME: Joi.string().required(),
@@ -43,7 +43,8 @@ import { MailModule } from './mail/mail.module';
       database: process.env.DB_NAME,
       entities: [User, Verification], // typeorm으로 관리할 entity를 입력해주면 됨
       synchronize: process.env.NODE_ENV !== 'prod', // DB를 자동으로 typeOrmModule의 상태로 마이그레이션
-      logging: process.env.NODE_ENV !== 'prod', // DB에서 일어나는 일을 logging
+      logging:
+        process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test', // DB에서 일어나는 일을 logging
     }),
     GraphQLModule.forRoot({
       // autoSchemaFile: join(process.cwd(), 'src/schema.gql'), // 스키마 파일을 자동으로 생성
