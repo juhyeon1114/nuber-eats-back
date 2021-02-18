@@ -2,7 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { getConnection } from 'typeorm';
+import { getConnection, Repository } from 'typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { User } from 'src/users/entities/user.entity';
 
 // 테스트마다 email을 전송하지 않게 하기 위함
 jest.mock('got', () => {
@@ -17,6 +19,7 @@ const PASSWORD = 'rlawngus';
 
 describe('UserModule (e2e)', () => {
   let app: INestApplication;
+  let usersRepository: Repository<User>;
   let jwtToken: string;
 
   beforeAll(async () => {
@@ -25,6 +28,7 @@ describe('UserModule (e2e)', () => {
     }).compile();
 
     app = module.createNestApplication();
+    usersRepository = module.get<Repository<User>>(getRepositoryToken(User));
     await app.init();
   });
 
@@ -70,6 +74,25 @@ describe('UserModule (e2e)', () => {
         }
       }
     `,
+      });
+  };
+
+  const getProfile = (id: number, token: string) => {
+    return request(app.getHttpServer())
+      .post(GRAPHQL_ENDPOINT)
+      .set(`x-jwt`, token)
+      .send({
+        query: `
+          query {
+              userProfile(userId: ${id}) {
+                ok
+                error
+                user {
+                  id
+                }
+              }
+            }
+        `,
       });
   };
 
@@ -126,7 +149,51 @@ describe('UserModule (e2e)', () => {
     });
   });
 
-  it.todo('userProfile');
+  describe('userProfile', () => {
+    let userId: number;
+
+    beforeAll(async () => {
+      const [user] = await usersRepository.find();
+      userId = user.id;
+    });
+
+    it('should see a user profile', () => {
+      return getProfile(userId, jwtToken)
+        .expect(200)
+        .expect((res) => {
+          const {
+            body: {
+              data: {
+                userProfile: {
+                  ok,
+                  error,
+                  user: { id },
+                },
+              },
+            },
+          } = res;
+          expect(ok).toBe(true);
+          expect(error).toBe(null);
+          expect(id).toBe(userId);
+        });
+    });
+
+    it('should not find a profile', () => {
+      return getProfile(123123123, jwtToken).expect((res) => {
+        const {
+          body: {
+            data: {
+              userProfile: { ok, error, user },
+            },
+          },
+        } = res;
+        expect(ok).toBe(false);
+        expect(error).toBe('user not found');
+        expect(user).toBe(null);
+      });
+    });
+  });
+
   it.todo('me');
   it.todo('verifyEmail');
   it.todo('editProfile');

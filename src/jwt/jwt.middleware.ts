@@ -22,7 +22,7 @@ export class JwtMiddleware implements NestMiddleware {
           }
         }
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     }
     next();
