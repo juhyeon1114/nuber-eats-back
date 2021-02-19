@@ -14,6 +14,8 @@ import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { Verification } from './users/entities/verification.entity';
 import { MailModule } from './mail/mail.module';
+import { Restaurant } from './restaurants/entities/restaurant.entity';
+import { Category } from './restaurants/entities/category.entity';
 
 @Module({
   imports: [
@@ -41,7 +43,7 @@ import { MailModule } from './mail/mail.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Verification], // typeorm으로 관리할 entity를 입력해주면 됨
+      entities: [User, Verification, Restaurant, Category], // typeorm으로 관리할 entity를 입력해주면 됨
       synchronize: process.env.NODE_ENV !== 'prod', // DB를 자동으로 typeOrmModule의 상태로 마이그레이션
       logging:
         process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test', // DB에서 일어나는 일을 logging

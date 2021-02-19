@@ -8,7 +8,7 @@ import { CoreEntity } from 'src/common/entities/core.entity';
 import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { InternalServerErrorException } from '@nestjs/common';
-import { IsEmail, IsEnum, IsString } from 'class-validator';
+import { IsBoolean, IsEmail, IsEnum, IsString } from 'class-validator';
 
 enum UserRole {
   Owner,
@@ -39,6 +39,7 @@ export class User extends CoreEntity {
 
   @Column({ default: false })
   @Field(() => Boolean)
+  @IsBoolean()
   verified: boolean;
 
   // typeorm 의 listener중 하나. DB에 데이터가 생성되기 전 실행됨
