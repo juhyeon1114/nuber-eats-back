@@ -5,6 +5,7 @@ import { AppModule } from '../src/app.module';
 import { getConnection, Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
+import { Verification } from 'src/users/entities/verification.entity';
 
 // 테스트마다 email을 전송하지 않게 하기 위함
 jest.mock('got', () => {
@@ -21,6 +22,7 @@ const NEW_EMAIL = 'juhyeon2@gomiad.com';
 describe('UserModule (e2e)', () => {
   let app: INestApplication;
   let usersRepository: Repository<User>;
+  let verificationRepository: Repository<Verification>;
   let jwtToken: string;
 
   beforeAll(async () => {
@@ -30,6 +32,9 @@ describe('UserModule (e2e)', () => {
 
     app = module.createNestApplication();
     usersRepository = module.get<Repository<User>>(getRepositoryToken(User));
+    verificationRepository = module.get<Repository<Verification>>(
+      getRepositoryToken(Verification),
+    );
     await app.init();
   });
 
@@ -40,11 +45,11 @@ describe('UserModule (e2e)', () => {
   });
 
   // common functions
+  const baseTest = () => request(app.getHttpServer()).post(GRAPHQL_ENDPOINT);
+
   const createTestAccount = (email, password) => {
-    return request(app.getHttpServer())
-      .post(GRAPHQL_ENDPOINT)
-      .send({
-        query: `
+    return baseTest().send({
+      query: `
         mutation {
           createAccount(input: {
             email: "${email}",
@@ -56,14 +61,12 @@ describe('UserModule (e2e)', () => {
           }
         }
       `,
-      });
+    });
   };
 
   const login = (email, password) => {
-    return request(app.getHttpServer())
-      .post(GRAPHQL_ENDPOINT)
-      .send({
-        query: `
+    return baseTest().send({
+      query: `
       mutation {
         login(input: {
           email: "${email}",
@@ -75,12 +78,11 @@ describe('UserModule (e2e)', () => {
         }
       }
     `,
-      });
+    });
   };
 
   const getProfile = (id: number, token: string) => {
-    return request(app.getHttpServer())
-      .post(GRAPHQL_ENDPOINT)
+    return baseTest()
       .set(`x-jwt`, token)
       .send({
         query: `
@@ -98,23 +100,19 @@ describe('UserModule (e2e)', () => {
   };
 
   const me = (token) => {
-    return request(app.getHttpServer())
-      .post(GRAPHQL_ENDPOINT)
-      .set('x-jwt', token)
-      .send({
-        query: `
+    return baseTest().set('x-jwt', token).send({
+      query: `
         query {
           me {
             email
           }
         }
       `,
-      });
+    });
   };
 
   const editProfile = (email) => {
-    return request(app.getHttpServer())
-      .post(GRAPHQL_ENDPOINT)
+    return baseTest()
       .set('x-jwt', jwtToken)
       .send({
         query: `
@@ -128,6 +126,21 @@ describe('UserModule (e2e)', () => {
             }
           `,
       });
+  };
+
+  const verifyEmail = (code) => {
+    return baseTest().send({
+      query: `
+        mutation {
+          verifyEmail(input: {
+            code: "${code}"
+          }) {
+            ok
+            error
+          }
+        }
+      `,
+    });
   };
 
   describe('createAccount', () => {
@@ -289,5 +302,43 @@ describe('UserModule (e2e)', () => {
     });
   });
 
-  describe('verifyEmail', () => {});
+  describe('verifyEmail', () => {
+    let verificationCode: string;
+    beforeAll(async () => {
+      const [verification] = await verificationRepository.find();
+      verificationCode = verification.code;
+    });
+
+    it('should verify email', () => {
+      return verifyEmail(verificationCode)
+        .expect(200)
+        .expect((res) => {
+          const {
+            body: {
+              data: {
+                verifyEmail: { ok, error },
+              },
+            },
+          } = res;
+          expect(ok).toBe(true);
+          expect(error).toBe(null);
+        });
+    });
+
+    it('should fail on wrong verification code', () => {
+      return verifyEmail('wrongVerificationCode')
+        .expect(200)
+        .expect((res) => {
+          const {
+            body: {
+              data: {
+                verifyEmail: { ok, error },
+              },
+            },
+          } = res;
+          expect(ok).toBe(false);
+          expect(error).toBe('Verification not found');
+        });
+    });
+  });
 });
