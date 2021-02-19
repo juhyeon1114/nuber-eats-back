@@ -36,12 +36,14 @@ export class Restaurant extends CoreEntity {
   @Field(() => Category, { nullable: true })
   @ManyToOne(() => Category, (category) => category.restaurants, {
     nullable: true,
-    onDelete: 'SET NULL',
+    onDelete: 'SET NULL', // category가 지워지면 categoryId를 null로 만들기
   })
   category: Category;
 
   //user : restaurant = 1 : n
   @Field(() => User)
-  @ManyToOne(() => User, (user) => user.restaurants)
+  @ManyToOne(() => User, (user) => user.restaurants, {
+    onDelete: 'CASCADE', // user가 지워지면 restaurant도 지우기
+  })
   owner: User;
 }

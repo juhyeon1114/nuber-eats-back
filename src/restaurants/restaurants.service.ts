@@ -40,6 +40,14 @@ export class RestaurantService {
         .toLowerCase();
       const categorySlug = categoryName.replace(/ /g, '-');
 
+      // 상호명이 이미 존재할 경우
+      const restaurant = await this.restaurants.findOne({
+        name: newRestaurant.name,
+      });
+      if (restaurant) {
+        return { ok: false, error: 'Restaurant already exists' };
+      }
+
       // categorySlug가 이미 만들어져있는지 판단 후 Restaurant인스턴스에 추가
       let category = await this.categories.findOne({ slug: categorySlug });
       if (!category) {

@@ -17,6 +17,7 @@ import { MailModule } from './mail/mail.module';
 import { Restaurant } from './restaurants/entities/restaurant.entity';
 import { Category } from './restaurants/entities/category.entity';
 import { RestaurantsModule } from './restaurants/restaurants.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { RestaurantsModule } from './restaurants/restaurants.module';
      * 이상, Dynamic Module : 설정이 적용되어 있는 모듈
      * 이하, Static Module
      */
+    AuthModule,
     UsersModule,
     RestaurantsModule,
   ],
