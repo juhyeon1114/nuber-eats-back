@@ -1,10 +1,11 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { IsString, Length } from 'class-validator';
 import { CoreEntity } from 'src/common/entities/core.entity';
+import { User } from 'src/users/entities/user.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { Category } from './category.entity';
 
-// @InputType({ isAbstract: true }) // 다른 곳에서 InputType으로 Restaurant를 가져다 쓸 수 있고, isAbstract가 true이기 때문에 DB에는 영향을 주진 않는다
+@InputType('RestaurantInputType', { isAbstract: true }) // 다른 곳에서 InputType으로 Restaurant를 가져다 쓸 수 있고, isAbstract가 true이기 때문에 DB에는 영향을 주진 않는다
 @ObjectType() // for nestjs
 @Entity() // for typeorm (DB에 아래의 entity를 작성해줌)
 export class Restaurant extends CoreEntity {
@@ -31,8 +32,16 @@ export class Restaurant extends CoreEntity {
   @IsString()
   address: string;
 
-  //category : restaurant = n : 1
-  @ManyToOne(() => Category, (category) => category.restaurants)
-  @Field(() => Category)
+  //category : restaurant = 1 : n
+  @Field(() => Category, { nullable: true })
+  @ManyToOne(() => Category, (category) => category.restaurants, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
   category: Category;
+
+  //user : restaurant = 1 : n
+  @Field(() => User)
+  @ManyToOne(() => User, (user) => user.restaurants)
+  owner: User;
 }
