@@ -19,14 +19,14 @@ export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
   @Mutation(() => CreateAccountOutput)
-  async createAccount(
+  createAccount(
     @Args('input') createAccountInput: CreateAccountInput,
   ): Promise<CreateAccountOutput> {
     return this.usersService.createAccount(createAccountInput);
   }
 
   @Mutation(() => LoginOutput)
-  async login(@Args('input') loginInput: LoginInput) {
+  login(@Args('input') loginInput: LoginInput) {
     return this.usersService.login(loginInput);
   }
 
@@ -47,7 +47,7 @@ export class UsersResolver {
 
   @Query(() => UserProfileOutput)
   @Role(['Any'])
-  async userProfile(
+  userProfile(
     @Args() userProfileInput: UserProfileInput,
   ): Promise<UserProfileOutput> {
     return this.usersService.findById(userProfileInput.userId);
@@ -55,7 +55,7 @@ export class UsersResolver {
 
   @Mutation(() => EditProfileOutput)
   @Role(['Any'])
-  async editProfile(
+  editProfile(
     @AuthUser() authUser: User,
     @Args('input') editProfileInput: EditProfileInput,
   ): Promise<EditProfileOutput> {
@@ -63,7 +63,7 @@ export class UsersResolver {
   }
 
   @Mutation(() => VerifyEmailOutput)
-  async verifyEmail(
+  verifyEmail(
     @Args('input') verifyEmailInput: VerifyEmailInput,
   ): Promise<VerifyEmailOutput> {
     return this.usersService.verifyEmail(verifyEmailInput.code);

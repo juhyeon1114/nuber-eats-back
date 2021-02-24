@@ -2,10 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
+import { AllCategoriesOutput } from './dtos/all-category.dto';
 import {
   CreateRestaurantInput,
   CreateRestaurantOutput,
 } from './dtos/create-restaurant.dto';
+import {
+  DeleteRestaurantInput,
+  DeleteRestaurantOutput,
+} from './dtos/delete-restaurant.dto';
 import {
   EditRestaurantInput,
   EditRestaurantOutput,
@@ -67,6 +72,9 @@ export class RestaurantService {
       const restaurant = await this.restaurants.findOne(
         editRestaurantInput.restaurantId,
       );
+      if (!restaurant) {
+        return { ok: false, error: 'Restaurant Not Found' };
+      }
 
       if (owner.id !== restaurant.ownerId) {
         return { ok: false, error: 'You are not the owner of this restaurant' };
@@ -88,11 +96,52 @@ export class RestaurantService {
 
       await this.restaurants.save([updatedRestaurant]);
 
-      if (!restaurant) return { ok: false, error: 'Restaurant Not Found' };
       return { ok: true };
     } catch (error) {
       console.error(error);
       return { ok: false, error };
     }
+  }
+
+  async deleteRestaurant(
+    owner: User,
+    deleteRestaurantInput: DeleteRestaurantInput,
+  ): Promise<DeleteRestaurantOutput> {
+    try {
+      const restaurant = await this.restaurants.findOne(
+        deleteRestaurantInput.restaurantId,
+      );
+      if (!restaurant) {
+        return { ok: false, error: 'Restaurant Not Found' };
+      }
+
+      if (owner.id !== restaurant.ownerId) {
+        return { ok: false, error: 'You are not the owner of this restaurant' };
+      }
+
+      await this.restaurants.delete(deleteRestaurantInput.restaurantId);
+
+      return { ok: true };
+    } catch (error) {
+      console.error(error);
+      return { ok: false, error };
+    }
+  }
+
+  /**
+   * CategoryService
+   */
+  async allCategories(): Promise<AllCategoriesOutput> {
+    try {
+      const categories = await this.categories.find();
+      return { ok: true, categories };
+    } catch (error) {
+      console.error(error);
+      return { ok: false, error };
+    }
+  }
+
+  countRestaurants(category: Category) {
+    return this.restaurants.count({ category });
   }
 }
