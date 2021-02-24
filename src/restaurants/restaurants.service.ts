@@ -146,7 +146,11 @@ export class RestaurantService {
     return this.restaurants.count({ category });
   }
 
-  async findCategoryBySlug({ slug }: CategoryInput): Promise<CategoryOutput> {
+  async findCategoryBySlug({
+    slug,
+    page,
+  }: CategoryInput): Promise<CategoryOutput> {
+    const PER_PAGE = 5;
     try {
       const category = await this.categories.findOne(
         { slug },
@@ -155,7 +159,23 @@ export class RestaurantService {
       if (!category) {
         return { ok: false, error: 'Category Not Found' };
       }
-      return { ok: true, category };
+
+      const restaurants = await this.restaurants.find({
+        where: {
+          category,
+        },
+        take: PER_PAGE,
+        skip: (page - 1) * PER_PAGE,
+      });
+
+      category.restaurants = restaurants;
+      const totalResults = await this.countRestaurants(category);
+
+      return {
+        ok: true,
+        category,
+        totalPages: Math.ceil(totalResults / PER_PAGE),
+      };
     } catch (error) {
       console.error(error);
       return { ok: false, error };
