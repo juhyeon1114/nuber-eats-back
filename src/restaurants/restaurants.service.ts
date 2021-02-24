@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
-import { Repository } from 'typeorm';
+import { ILike, Like, Raw, Repository } from 'typeorm';
 import { AllCategoriesOutput } from './dtos/all-category.dto';
 import { CategoryInput, CategoryOutput } from './dtos/category.dto';
 import {
@@ -16,6 +16,12 @@ import {
   EditRestaurantInput,
   EditRestaurantOutput,
 } from './dtos/edit-restaurant.dto';
+import { RestaurantInput, RestaurantOutput } from './dtos/restaurant.dto';
+import { RestaurantsInput, RestaurantsOutput } from './dtos/restaurants.dto';
+import {
+  SearchRestaurantInput,
+  SearchRestaurantOutput,
+} from './dtos/search-restaurant.dto';
 import { Category } from './entities/category.entity';
 import { Restaurant } from './entities/restaurant.entity';
 import { CategoryRepository } from './repositories/category.repository';
@@ -29,6 +35,8 @@ export class RestaurantService {
     private readonly restaurants: Repository<Restaurant>,
     private readonly categories: CategoryRepository,
   ) {}
+
+  private readonly PER_PAGE = 5;
 
   getAll(): Promise<Restaurant[]> {
     return this.restaurants.find();
@@ -129,6 +137,64 @@ export class RestaurantService {
     }
   }
 
+  async allRestaurants({ page }: RestaurantsInput): Promise<RestaurantsOutput> {
+    try {
+      const [results, totalItems] = await this.restaurants.findAndCount({
+        skip: (page - 1) * this.PER_PAGE,
+        take: this.PER_PAGE,
+      });
+      return {
+        ok: true,
+        results,
+        totalPages: Math.ceil(totalItems / this.PER_PAGE),
+        totalItems,
+      };
+    } catch (error) {
+      console.error(error);
+      return { ok: false, error };
+    }
+  }
+
+  async findRestaurantById({
+    restaurantId,
+  }: RestaurantInput): Promise<RestaurantOutput> {
+    try {
+      const restaurant = await this.restaurants.findOne(restaurantId);
+      if (!restaurant) {
+        return { ok: false, error: 'Restaurant Not Found' };
+      }
+      return { ok: true, restaurant };
+    } catch (error) {
+      console.error(error);
+      return { ok: false, error };
+    }
+  }
+
+  async searchRestaurantByName({
+    query,
+    page,
+  }: SearchRestaurantInput): Promise<SearchRestaurantOutput> {
+    try {
+      const [restaurants, totalItems] = await this.restaurants.findAndCount({
+        where: {
+          // name: ILike(`%${query}%`), // ILike : 대소문자를 모두 포함해서 검색할 때 사용
+          name: Raw((name) => `${name} ILIKE '%${query}%'`),
+        },
+        skip: (page - 1) * this.PER_PAGE,
+        take: this.PER_PAGE,
+      });
+      return {
+        ok: true,
+        restaurants,
+        totalPages: Math.ceil(totalItems / this.PER_PAGE),
+        totalItems,
+      };
+    } catch (error) {
+      console.error(error);
+      return { ok: false, error };
+    }
+  }
+
   /**
    * CategoryService
    */
@@ -150,7 +216,6 @@ export class RestaurantService {
     slug,
     page,
   }: CategoryInput): Promise<CategoryOutput> {
-    const PER_PAGE = 5;
     try {
       const category = await this.categories.findOne(
         { slug },
@@ -160,21 +225,22 @@ export class RestaurantService {
         return { ok: false, error: 'Category Not Found' };
       }
 
-      const restaurants = await this.restaurants.find({
+      const results = await this.restaurants.find({
         where: {
           category,
         },
-        take: PER_PAGE,
-        skip: (page - 1) * PER_PAGE,
+        take: this.PER_PAGE,
+        skip: (page - 1) * this.PER_PAGE,
       });
 
-      category.restaurants = restaurants;
-      const totalResults = await this.countRestaurants(category);
+      const totalItems = await this.countRestaurants(category);
 
       return {
         ok: true,
         category,
-        totalPages: Math.ceil(totalResults / PER_PAGE),
+        results,
+        totalPages: Math.ceil(totalItems / this.PER_PAGE),
+        totalItems,
       };
     } catch (error) {
       console.error(error);
