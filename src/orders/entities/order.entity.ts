@@ -40,7 +40,7 @@ export class Order extends CoreEntity {
   })
   driver?: User;
 
-  @Field(() => Restaurant)
+  @Field(() => Restaurant, { nullable: true })
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.orders, {
     onDelete: 'SET NULL', // user가 지워지면 driver는 null
     nullable: true,
@@ -52,12 +52,12 @@ export class Order extends CoreEntity {
   @JoinTable()
   items: OrderItem[];
 
-  @Column()
-  @Field(() => Float)
+  @Column({ nullable: true })
+  @Field(() => Float, { nullable: true })
   @IsNumber()
-  total: number;
+  total?: number;
 
-  @Column({ type: 'enum', enum: OrderStatus })
+  @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.Pending })
   @Field(() => OrderStatus)
   @IsEnum(OrderStatus)
   status: OrderStatus;
