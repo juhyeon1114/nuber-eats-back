@@ -18,6 +18,7 @@ import { Restaurant } from './restaurants/entities/restaurant.entity';
 import { Category } from './restaurants/entities/category.entity';
 import { RestaurantsModule } from './restaurants/restaurants.module';
 import { AuthModule } from './auth/auth.module';
+import { Dish } from './restaurants/entities/dish.entity';
 
 @Module({
   imports: [
@@ -45,7 +46,7 @@ import { AuthModule } from './auth/auth.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Verification, Restaurant, Category], // typeorm으로 관리할 entity를 입력해주면 됨
+      entities: [User, Verification, Restaurant, Category, Dish], // typeorm으로 관리할 entity를 입력해주면 됨
       synchronize: process.env.NODE_ENV !== 'prod', // DB를 자동으로 typeOrmModule의 상태로 마이그레이션
       logging:
         process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test', // DB에서 일어나는 일을 logging
