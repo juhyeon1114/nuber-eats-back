@@ -65,7 +65,10 @@ import { OrderItem } from './orders/entities/order-item.entity';
     GraphQLModule.forRoot({
       // autoSchemaFile: join(process.cwd(), 'src/schema.gql'), // 스키마 파일을 자동으로 생성
       autoSchemaFile: true, // 스키마를 자동으로 생성해서 메모리에 갖고 있음
-      context: ({ req }) => ({ user: req['user'] }), // context는 모든 resolver에서 접근할 수 있는 함수이다. 인자에는 request가 있고, 이 request도 모든 resolver에서 접근 가능하다.
+      context: ({ req, connection }) => ({
+        token: req ? req.headers['x-jwt'] : connection.context['x-jwt'],
+      }), // context는 모든 resolver에서 접근할 수 있는 함수이다. 인자에는 request가 있고, 이 request도 모든 resolver에서 접근 가능하다.
+      installSubscriptionHandlers: true, // 서버가 웹소켓 기능을 가짐
     }),
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY,
@@ -88,12 +91,13 @@ import { OrderItem } from './orders/entities/order-item.entity';
   controllers: [],
   providers: [],
 })
-export class AppModule implements NestModule {
-  // middleware를 쓰는 법 2
-  configure(consumer: MiddlewareConsumer) {
-    // JwtMiddleware를 /graphql이라는 경로에서 POST 메서드에 적용
-    consumer
-      .apply(JwtMiddleware)
-      .forRoutes({ path: '/graphql', method: RequestMethod.POST });
-  }
-}
+export class AppModule {}
+// export class AppModule implements NestModule {
+//   // middleware를 쓰는 법 2
+//   configure(consumer: MiddlewareConsumer) {
+//     // JwtMiddleware를 /graphql이라는 경로에서 POST 메서드에 적용
+//     consumer
+//       .apply(JwtMiddleware)
+//       .forRoutes({ path: '/graphql', method: RequestMethod.POST });
+//   }
+// }
