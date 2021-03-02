@@ -22,6 +22,7 @@ import { Dish } from './restaurants/entities/dish.entity';
 import { OrdersModule } from './orders/orders.module';
 import { Order } from './orders/entities/order.entity';
 import { OrderItem } from './orders/entities/order-item.entity';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -83,6 +84,7 @@ import { OrderItem } from './orders/entities/order-item.entity';
      * 이상, Dynamic Module : 설정이 적용되어 있는 모듈
      * 이하, Static Module
      */
+    CommonModule,
     AuthModule,
     UsersModule,
     RestaurantsModule,

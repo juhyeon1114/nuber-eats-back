@@ -1,7 +1,9 @@
+import { Inject } from '@nestjs/common';
 import { Args, Mutation, Resolver, Query, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 import { AuthUser } from 'src/auth/auth-user.decorator';
 import { Role } from 'src/auth/role.decorator';
+import { NEW_PENDING_ORDER, PUB_SUB } from 'src/common/common.constants';
 import { User } from 'src/users/entities/user.entity';
 import { CreateOrderInput, CreateOrderOutput } from './dto/create-order.dto';
 import { EditOrderInput, EditOrderOutput } from './dto/edit-order.dto';
@@ -10,11 +12,13 @@ import { GetOrdersInput, GetOrdersOutput } from './dto/get-orders.dto';
 import { Order } from './entities/order.entity';
 import { OrdersService } from './orders.service';
 
-const pubsub = new PubSub();
-
 @Resolver(() => Order)
 export class OrdersResolver {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(
+    private readonly ordersService: OrdersService,
+    @Inject(PUB_SUB)
+    private readonly pubsub: PubSub,
+  ) {}
 
   @Mutation(() => CreateOrderOutput)
   createOrder(
@@ -52,14 +56,36 @@ export class OrdersResolver {
   }
 
   @Mutation(() => Boolean)
-  potatoReady() {
-    pubsub.publish('hot potato', { readyPotato: 'your potato is ready' });
+  async potatoReady(@Args('potatoId') potatoId: number) {
+    await this.pubsub.publish('hot potato', {
+      readyPotato: potatoId,
+    });
     return true;
   }
 
-  @Subscription(() => String)
-  @Role(['Any'])
-  readyPotato() {
-    return pubsub.asyncIterator('hot potato');
+  @Subscription(() => Order, {
+    filter: ({ pendingOrders: { ownerId } }, _, { user }) => {
+      return ownerId === user.id; // 레스토랑 주인 === 현재 로그인한 사람
+    },
+    resolve: ({ pendingOrders: { order } }) => order,
+  })
+  @Role(['Owner'])
+  pendingOrders() {
+    return this.pubsub.asyncIterator(NEW_PENDING_ORDER);
   }
+
+  /**
+   * filter : 입력 값에 따라서 다르게 동작시킬 수 있다. (return Boolean)
+   * resolve : 사용자가 받는 update알림의 형태를 바꿔줌
+   */
+  // @Subscription(() => String, {
+  //   filter: ({ readyPotato }, { potatoId }, context) => {
+  //     return readyPotato === potatoId;
+  //   },
+  //   resolve: ({ readyPotato }) => `potato ${readyPotato}`,
+  // })
+  // @Role(['Any'])
+  // readyPotato(@Args('potatoId') potatoId: number) {
+  //   return this.pubsub.asyncIterator('hot potato');
+  // }
 }

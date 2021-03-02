@@ -18,6 +18,7 @@ export class OrderItemOption {
 @Entity()
 export class OrderItem extends CoreEntity {
   // reverseSide를 명시하지 않음 : Dish에서 OrderItem에 접근할 필요가 없기 때문
+  @Field(() => Dish)
   @ManyToOne(() => Dish, { nullable: true, onDelete: 'CASCADE' })
   dish: Dish;
 
