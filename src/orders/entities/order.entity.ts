@@ -37,9 +37,9 @@ export class Order extends CoreEntity {
   @ManyToOne(() => User, (user) => user.orders, {
     onDelete: 'SET NULL', // user가 지워지면 customer는 null
     nullable: true,
+    eager: true, // Order가 load될 때, customer를 자동으로 relations에 추가해줌
   })
   customer?: User;
-
   @RelationId((order: Order) => order.customer)
   customerId: number;
 
@@ -47,9 +47,9 @@ export class Order extends CoreEntity {
   @ManyToOne(() => User, (user) => user.rides, {
     onDelete: 'SET NULL', // user가 지워지면 driver는 null
     nullable: true,
+    eager: true,
   })
   driver?: User;
-
   @RelationId((order: Order) => order.driver)
   driverId: number;
 
@@ -57,11 +57,12 @@ export class Order extends CoreEntity {
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.orders, {
     onDelete: 'SET NULL', // user가 지워지면 driver는 null
     nullable: true,
+    eager: true,
   })
   restaurant?: Restaurant;
 
   @Field(() => [OrderItem])
-  @ManyToMany(() => OrderItem)
+  @ManyToMany(() => OrderItem, { eager: true })
   @JoinTable()
   items: OrderItem[];
 
