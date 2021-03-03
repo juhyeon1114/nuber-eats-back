@@ -59,7 +59,7 @@ export class User extends CoreEntity {
   rides: Order[];
 
   @Field(() => [Payment])
-  @OneToMany(() => Payment, (payment) => payment.user)
+  @OneToMany(() => Payment, (payment) => payment.user, { eager: true })
   payments: Payment[];
 
   // typeorm 의 listener중 하나. DB에 데이터가 생성되기 전 실행됨
