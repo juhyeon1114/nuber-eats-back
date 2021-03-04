@@ -19,6 +19,7 @@ import { OrderItem } from './orders/entities/order-item.entity';
 import { CommonModule } from './common/common.module';
 import { PaymentsModule } from './payments/payments.module';
 import { Payment } from './payments/entity/payment.entity';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -76,7 +77,7 @@ import { Payment } from './payments/entity/payment.entity';
       domain: process.env.MAILGUN_DOMAIN_NAME,
       fromEmail: process.env.MAILGUN_FROM_EMAIL,
     }),
-
+    ScheduleModule.forRoot(),
     /**
      * 이상, Dynamic Module : 설정이 적용되어 있는 모듈
      * 이하, Static Module

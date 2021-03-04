@@ -13,6 +13,6 @@ async function bootstrap() {
     }),
   );
   // app.use(jwtMiddleware); // middleware를 쓰는 법 1
-  await app.listen(3000);
+  await app.listen(4000);
 }
 bootstrap();
