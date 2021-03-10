@@ -42,7 +42,7 @@ export class RestaurantService {
     private readonly dishes: Repository<Dish>,
   ) {}
 
-  private readonly PER_PAGE = 5;
+  private readonly PER_PAGE = 3;
 
   getAll(): Promise<Restaurant[]> {
     return this.restaurants.find();
@@ -151,6 +151,7 @@ export class RestaurantService {
         order: {
           isPromoted: 'DESC',
         },
+        relations: ['category'],
       });
       return {
         ok: true,
