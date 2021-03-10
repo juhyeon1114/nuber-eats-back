@@ -39,6 +39,7 @@ export class Restaurant extends CoreEntity {
   @ManyToOne(() => Category, (category) => category.restaurants, {
     nullable: true,
     onDelete: 'SET NULL', // category가 지워지면 categoryId를 null로 만들기
+    eager: true,
   })
   category: Category;
 
