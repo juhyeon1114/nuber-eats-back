@@ -83,6 +83,7 @@ export class RestaurantService {
       await this.restaurants.save(newRestaurant); // save Instance to DB,
       return {
         ok: true,
+        restaurantId: newRestaurant.id,
       };
     } catch (error) {
       console.error(error);
