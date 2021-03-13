@@ -12,6 +12,7 @@ async function bootstrap() {
       transform: true, // request를 우리가 원하는 실제 타입으로 변환해줌
     }),
   );
+  app.enableCors();
   // app.use(jwtMiddleware); // middleware를 쓰는 법 1
   await app.listen(4000);
 }
