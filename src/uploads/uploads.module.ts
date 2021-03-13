@@ -1,9 +1,27 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
+import { MulterModule } from '@nestjs/platform-express';
+import { CONFIG_OPTIONS } from 'src/common/common.constants';
 import { UploadsController } from './uploads.controller';
-import { UploadsService } from './uploads.service';
+import { UploadsModuleOptions } from './uploads.interface';
 
 @Module({
-  controllers: [UploadsController],
-  providers: [UploadsService],
+  imports: [
+    MulterModule.register({
+      dest: './public/images',
+    }),
+  ],
 })
-export class UploadsModule {}
+export class UploadsModule {
+  static forRoot(options: UploadsModuleOptions): DynamicModule {
+    return {
+      module: UploadsModule,
+      providers: [
+        {
+          provide: CONFIG_OPTIONS,
+          useValue: options,
+        },
+      ],
+      controllers: [UploadsController],
+    };
+  }
+}

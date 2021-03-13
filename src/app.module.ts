@@ -21,6 +21,8 @@ import { PaymentsModule } from './payments/payments.module';
 import { Payment } from './payments/entity/payment.entity';
 import { ScheduleModule } from '@nestjs/schedule';
 import { UploadsModule } from './uploads/uploads.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -39,6 +41,8 @@ import { UploadsModule } from './uploads/uploads.module';
         MAILGUN_API_KEY: Joi.string().required(),
         MAILGUN_DOMAIN_NAME: Joi.string().required(),
         MAILGUN_FROM_EMAIL: Joi.string().required(),
+        S3_ACCESS: Joi.string().required(),
+        S3_SECRET: Joi.string().required(),
       }), // 환경변수 유효성 검사
     }),
     TypeOrmModule.forRoot({
@@ -79,6 +83,13 @@ import { UploadsModule } from './uploads/uploads.module';
       fromEmail: process.env.MAILGUN_FROM_EMAIL,
     }),
     ScheduleModule.forRoot(),
+    UploadsModule.forRoot({
+      accessKey: process.env.S3_ACCESS,
+      secretKey: process.env.S3_SECRET,
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+    }),
     /**
      * 이상, Dynamic Module : 설정이 적용되어 있는 모듈
      * 이하, Static Module
@@ -89,7 +100,6 @@ import { UploadsModule } from './uploads/uploads.module';
     RestaurantsModule,
     OrdersModule,
     PaymentsModule,
-    UploadsModule,
   ],
   controllers: [],
   providers: [],
