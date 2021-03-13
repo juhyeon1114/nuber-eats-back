@@ -20,6 +20,7 @@ import { CommonModule } from './common/common.module';
 import { PaymentsModule } from './payments/payments.module';
 import { Payment } from './payments/entity/payment.entity';
 import { ScheduleModule } from '@nestjs/schedule';
+import { UploadsModule } from './uploads/uploads.module';
 
 @Module({
   imports: [
@@ -88,6 +89,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     RestaurantsModule,
     OrdersModule,
     PaymentsModule,
+    UploadsModule,
   ],
   controllers: [],
   providers: [],
