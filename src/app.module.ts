@@ -89,6 +89,7 @@ import { join } from 'path';
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
+      exclude: ['/graphql'],
     }),
     /**
      * 이상, Dynamic Module : 설정이 적용되어 있는 모듈
