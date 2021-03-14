@@ -51,7 +51,7 @@ export class RestaurantResolver {
     return this.restaurantService.myRestaurants(owner);
   }
 
-  @Query(() => MyRestaurantsOutput)
+  @Query(() => MyRestaurantOutput)
   @Role(['Owner'])
   myRestaurant(
     @AuthUser() owner: User,
