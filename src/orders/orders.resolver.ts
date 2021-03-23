@@ -28,6 +28,7 @@ export class OrdersResolver {
   ) {}
 
   @Mutation(() => CreateOrderOutput)
+  @Role(['Any'])
   createOrder(
     @AuthUser() customer: User,
     @Args('input') createOrderInput: CreateOrderInput,
